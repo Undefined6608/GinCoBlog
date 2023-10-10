@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"GinCoBlog/config"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"log"
 	"os"
 	"path"
 	"time"
@@ -15,16 +15,19 @@ func LoggerToFile() gin.HandlerFunc {
 
 	logFilePath := config.LogFilePath
 	logFileName := config.LogFileName
-
 	//日志文件
 	fileName := path.Join(logFilePath, logFileName)
-
 	//写入文件
-	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	src, err := os.OpenFile(fileName, os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModeAppend)
 	if err != nil {
-		fmt.Println("err", err)
+		log.Fatal("err", err)
 	}
-
+	defer func(src *os.File) {
+		err := src.Close()
+		if err != nil {
+			log.Fatal("err", err)
+		}
+	}(src)
 	//实例化
 	logger := logrus.New()
 

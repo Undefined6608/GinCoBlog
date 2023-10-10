@@ -19,12 +19,32 @@ type Config struct {
 	} `yaml:"data_base"`
 	// 日志配置
 	LogConfig struct {
-		Path string `yaml:"path"` // 日志存放路径
-		Name string `yaml:"name"` // 日志名称
+		Path string `yaml:"path"`
+		Name string `yaml:"name"`
 	} `yaml:"log_config"`
+	// 正则配置
+	Regular struct {
+		Phone string `yaml:"phone"`
+		Email string `yaml:"email"`
+	} `yaml:"regular"`
+	// 邮箱配置
+	EmailConfig struct {
+		EmailAddress string `yaml:"email_address"`
+		EmailName    string `yaml:"email_name"`
+		Password     string `yaml:"password"`
+		SmtpServer   string `yaml:"smtp_server"`
+		SmtpPort     int    `yaml:"smtp_port"`
+	} `yaml:"email_config"`
+	// redis 配置
+	RedisConfig struct {
+		Host     string `yaml:"host"`
+		Port     string `yaml:"port"`
+		Password string `yaml:"password"`
+		DB       int    `yaml:"db"`
+	} `yaml:"redis_config"`
 }
 
-// Default /** 获取 yaml 配置
+// Default 获取 yaml 配置
 func Default() Config {
 	// 实例化配置对象
 	var configObj Config
@@ -44,15 +64,24 @@ func Default() Config {
 	return configObj
 }
 
-// Response /**返回值类型
+// Response 返回值类型
 type Response struct {
 	Code    int         `json:"code"` // 响应值
 	Message string      `json:"msg"`  // 提示信息
 	Data    interface{} `json:"data"` // 数据
 }
 
-// LogFilePath /**日志存放地址
+// LogFilePath 日志存放地址
 var LogFilePath = Default().LogConfig.Path
 
-// LogFileName /**日志文件名
+// LogFileName 日志文件名
 var LogFileName = Default().LogConfig.Name
+
+// PhoneReg /** 定义电话号码正则
+var PhoneReg = Default().Regular.Phone
+
+// EmailReg /** 定义邮箱正则
+var EmailReg = Default().Regular.Email
+
+// EmailConfig /** 邮箱发送配置
+var EmailConfig = Default().EmailConfig

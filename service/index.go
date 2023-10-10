@@ -3,8 +3,11 @@ package service
 import (
 	"GinCoBlog/config"
 	"GinCoBlog/entity"
+	"context"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"log"
 )
 
 // Pool /** 创建数据库连接池
@@ -27,7 +30,6 @@ func VerDataBase() {
 	pool := Pool()
 	// 验证sys_user表是否存在
 	err := pool.AutoMigrate(&entity.SysUser{})
-	err = pool.AutoMigrate(&entity.SysToken{})
 	err = pool.AutoMigrate(&entity.ArticleType{})
 	err = pool.AutoMigrate(&entity.Article{})
 	err = pool.AutoMigrate(&entity.ArticleComments{})
@@ -36,4 +38,20 @@ func VerDataBase() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+// RedisClient Redis 数据库连接
+func RedisClient() *redis.Client {
+	// 拿到 Redis 数据库配置
+	redisConfig := config.Default().RedisConfig
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     redisConfig.Host + ":" + redisConfig.Port,
+		Password: redisConfig.Password,
+		DB:       redisConfig.DB,
+	})
+	ctx := context.Background()
+	if _, err := rdb.Ping(ctx).Result(); err != nil {
+		log.Fatalln(err.Error())
+	}
+	return rdb
 }

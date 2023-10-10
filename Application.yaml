@@ -18,3 +18,27 @@ log_config:
   path: 'logs/'
   # 日志名称
   name: 'gin.log'
+# 正则
+regular:
+  # 电话号码正则
+  phone: '^(13[0-9]|14[5-9]|15[0-35-9]|16[6]|17[0-8]|18[0-9]|19[0-9]|147|166|17[0-1]|162)\d{8}$'
+  # 邮箱正则
+  email: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+# 邮箱配置
+email_config:
+  # 邮箱地址
+  email_address: 'co-blog@qq.com'
+  # 邮箱名
+  email_name: 'CoBlog站长'
+  # 邮箱密码
+  password: 'qgiegwujfquqbjfd'
+  # 邮箱服务器
+  smtp_server: 'smtp.qq.com'
+  # 邮箱端口
+  smtp_port: 587
+# redis
+redis_config:
+  host: '127.0.0.1'
+  port: '6379'
+  password: ''
+  db: 0

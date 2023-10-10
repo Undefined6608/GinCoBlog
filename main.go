@@ -23,7 +23,7 @@ import (
 // 项目主方法
 func main() {
 	// 获取项目路由
-	router := gin.Default()
+	router := gin.New()
 	// 挂载中间件
 	router.Use(gin.Logger(), gin.Recovery(), middleware.LoggerToFile())
 	// 加载代理中间件
