@@ -122,6 +122,7 @@ func SendEmailCode(c *gin.Context) {
 	utils.SuccessResult(c, "发送成功！", nil)
 }
 
+// Register 注册
 func Register(c *gin.Context) {
 	// 获取参数接口实例
 	var param request.RegisterParams
@@ -145,4 +146,30 @@ func Register(c *gin.Context) {
 	}
 	// 注册成功
 	utils.SuccessResult(c, "注册成功！", nil)
+}
+
+// PhoneLogin 电话号码登录
+func PhoneLogin(c *gin.Context) {
+	// 拿到电话号码登录参数实体类
+	var param request.PhoneLoginParams
+	// 绑定参数
+	err := c.ShouldBindJSON(&param)
+	// 参数绑定失败
+	if err != nil {
+		utils.FailResult(c, "参数错误！")
+		return
+	}
+	// 验证完成后
+	err, status, token := service.PhoneLoginService(&param)
+	if err != nil {
+		utils.FailResult(c, err.Error())
+		return
+	}
+	// 注册失败
+	if !status {
+		utils.FailResult(c, "注册失败")
+		return
+	}
+	// 注册成功
+	utils.SuccessResult(c, "登录成功！", map[string]interface{}{"token": token})
 }

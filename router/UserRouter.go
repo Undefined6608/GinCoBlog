@@ -18,4 +18,8 @@ func UserRouter(router *gin.RouterGroup) {
 	router.GET("/emailOccupy", controller.EmailOccupy)
 	// 获取邮箱验证码
 	router.POST("/sendEmailCode", controller.SendEmailCode)
+	// 注册
+	router.POST("/register", controller.Register)
+	// 电话号码登录
+	router.POST("/phoneLogin", controller.PhoneLogin)
 }

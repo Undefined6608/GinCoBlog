@@ -1,5 +1,10 @@
 package request
 
+import (
+	"GinCoBlog/entity"
+	"github.com/dgrijalva/jwt-go"
+)
+
 // UserNameOccupyParams 用户名查重参数
 type UserNameOccupyParams struct {
 	UserName string `json:"user_name" binding:"required,min=3,max=15"`
@@ -28,4 +33,22 @@ type RegisterParams struct {
 	EmailCode   string `json:"email_code" binding:"required,len=6"`
 	Password    string `json:"password" binding:"required,len=32"`
 	VerPassword string `json:"ver_password" binding:"required,len=32"`
+}
+
+// PhoneLoginParams 电话号码登录参数
+type PhoneLoginParams struct {
+	Phone    string `json:"phone" binding:"required,len=11"`
+	Password string `json:"password" binding:"required,len=32"`
+}
+
+// EmailLoginParams 邮箱登录参数
+type EmailLoginParams struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required,len=32"`
+}
+
+// TokenParams 定义 Token 类型
+type TokenParams struct {
+	UserInfo           entity.SysUser // 用户信息
+	jwt.StandardClaims                // token 配置
 }

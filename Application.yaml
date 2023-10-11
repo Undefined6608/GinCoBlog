@@ -42,3 +42,23 @@ redis_config:
   port: '6379'
   password: ''
   db: 0
+# 加密
+encryption:
+  # 私钥
+  private_key:
+    password: '1b6b260b-67d1-4b5a-917e-10ec233329ca'
+  # 盐值
+  salt:
+    password: 10
+# token 配置
+token:
+  private_key: 'af28c9fe-9426-41dd-8ea7-cba762ec0f1e'
+# 不验证的接口地址
+not_verify_url:
+  - '/api/user/phoneOccupy'
+  - '/api/user/emailOccupy'
+  - '/api/user/register'
+  - '/api/user/phoneLogin'
+  - '/api/user/emailLogin'
+  - '/api/user/sendEmailCode'
+  - '/api/user/forgetPassword'

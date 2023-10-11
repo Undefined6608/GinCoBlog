@@ -22,12 +22,6 @@ func LoggerToFile() gin.HandlerFunc {
 	if err != nil {
 		log.Fatal("err", err)
 	}
-	defer func(src *os.File) {
-		err := src.Close()
-		if err != nil {
-			log.Fatal("err", err)
-		}
-	}(src)
 	//实例化
 	logger := logrus.New()
 

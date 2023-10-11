@@ -3,6 +3,7 @@ package config
 import (
 	"gopkg.in/yaml.v2"
 	"os"
+	"time"
 )
 
 // Config 配置 yaml 结构
@@ -42,6 +43,23 @@ type Config struct {
 		Password string `yaml:"password"`
 		DB       int    `yaml:"db"`
 	} `yaml:"redis_config"`
+	// 加密配置
+	Encryption struct {
+		// 私钥
+		PrivateKey struct {
+			Password string `yaml:"password"`
+		} `yaml:"private_key"`
+		// 盐值
+		Salt struct {
+			Password int `yaml:"password"`
+		} `yaml:"salt"`
+	} `yaml:"encryption"`
+	// token 配置
+	Token struct {
+		PrivateKey string `yaml:"private_key"`
+	} `yaml:"token"`
+	// 绕过中间件验证的地址
+	NotVerifyUrl []string `yaml:"not_verify_url"`
 }
 
 // Default 获取 yaml 配置
@@ -85,3 +103,15 @@ var EmailReg = Default().Regular.Email
 
 // EmailConfig /** 邮箱发送配置
 var EmailConfig = Default().EmailConfig
+
+// Encryption 加密配置
+var Encryption = Default().Encryption
+
+// TokenPrivateKey Token 私钥配置
+var TokenPrivateKey = Default().Token.PrivateKey
+
+// TokenEffectAge Token 生命周期配置
+const TokenEffectAge = 1 * 24 * time.Hour
+
+// NotVerifyUrl 绕过验证的地址
+var NotVerifyUrl = Default().NotVerifyUrl

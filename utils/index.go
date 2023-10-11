@@ -2,9 +2,14 @@ package utils
 
 import (
 	"GinCoBlog/config"
+	"GinCoBlog/request"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/satori/go.uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/gomail.v2"
+	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -23,21 +28,25 @@ func resultType(code int, msg string, data interface{}) config.Response {
 // SuccessResult 成功响应
 func SuccessResult(c *gin.Context, msg string, data interface{}) {
 	c.JSON(http.StatusOK, resultType(http.StatusOK, msg, data))
+	c.Next()
 }
 
 // FailResult 错误响应
 func FailResult(c *gin.Context, msg string) {
 	c.JSON(http.StatusBadRequest, resultType(http.StatusBadRequest, msg, nil))
+	c.Next()
 }
 
 // ServerErrorResult 服务器错误响应
 func ServerErrorResult(c *gin.Context) {
 	c.JSON(http.StatusInternalServerError, resultType(http.StatusInternalServerError, "服务器错误！", nil))
+	c.Next()
 }
 
 // AuthorizationResult 权限错误响应
 func AuthorizationResult(c *gin.Context, msg string) {
 	c.JSON(http.StatusUnauthorized, resultType(http.StatusUnauthorized, msg, nil))
+	c.Next()
 }
 
 // StrIsEmpty 判断字符串为空
@@ -68,6 +77,7 @@ func generateVerificationCode() string {
 	return code
 }
 
+// SendEmail 发送邮箱
 func SendEmail(email string) string {
 	// 生成验证码
 	code := generateVerificationCode()
@@ -93,4 +103,54 @@ func SendEmail(email string) string {
 		panic("发送失败！")
 	}
 	return code
+}
+
+// CreateUUID 生成 uuid
+func CreateUUID() string {
+	uCode := uuid.NewV4()
+	return uCode.String()
+}
+
+// EncryptionPassword 密码加密
+func EncryptionPassword(pwd string) string {
+	password, err := bcrypt.GenerateFromPassword([]byte(pwd+config.Encryption.PrivateKey.Password), config.Encryption.Salt.Password)
+	if err != nil {
+		return ""
+	}
+	return string(password)
+}
+
+// ComparePassword 密码验证
+func ComparePassword(hashPwd string, pwd string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashPwd), []byte(pwd+config.Encryption.PrivateKey.Password))
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+// GenerateToken 生成 Token
+func GenerateToken(claims *request.TokenParams) string {
+	//设置token有效期，也可不设置有效期，采用redis的方式
+	//   1)将token存储在redis中，设置过期时间，token如没过期，则自动刷新redis过期时间，
+	//   2)通过这种方式，可以很方便的为token续期，而且也可以实现长时间不登录的话，强制登录
+	claims.ExpiresAt = time.Now().Add(config.TokenEffectAge).Unix()
+	//生成token
+	sign, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(config.TokenPrivateKey))
+	if err != nil {
+		//这里因为项目接入了统一异常处理，所以使用panic并不会使程序终止，如不接入，可使用原始方式处理错误
+		log.Panicln("Token生成异常")
+		return ""
+	}
+	return sign
+}
+
+// IsContainArr /**Token URL过滤
+func IsContainArr(noVerify []string, requestUrl string) bool {
+	for _, str := range noVerify {
+		if str == requestUrl {
+			return true
+		}
+	}
+	return false
 }

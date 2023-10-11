@@ -1,11 +1,13 @@
 package service
 
 import (
+	"GinCoBlog/config"
 	"GinCoBlog/entity"
 	"GinCoBlog/request"
 	"GinCoBlog/utils"
 	"context"
 	"errors"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
 	"time"
 )
@@ -125,6 +127,7 @@ func SendMsgCodeService(email string) (error, bool) {
 	return nil, true
 }
 
+// RegisterService 注册
 func RegisterService(param *request.RegisterParams) (error, bool) {
 	// 判断数据是否为空
 	if utils.StrIsEmpty(param.UserName) || utils.StrIsEmpty(param.Phone) || utils.StrIsEmpty(param.Email) || utils.StrIsEmpty(param.Password) {
@@ -138,6 +141,14 @@ func RegisterService(param *request.RegisterParams) (error, bool) {
 	if utils.VerEmailReg(param.Email) {
 		return errors.New("邮箱格式错误"), false
 	}
+	// 验证电话号码是否已存在
+	if err, _ := PhoneOccupyService(param.Phone); err != nil {
+		return err, false
+	}
+	// 验证邮箱是否已存在
+	if err, _ := EmailOccupyService(param.Email); err != nil {
+		return err, false
+	}
 	// 判断密码格式
 	if len(param.Password) != 32 || len(param.VerPassword) != 32 {
 		return errors.New("密码为空"), false
@@ -147,11 +158,71 @@ func RegisterService(param *request.RegisterParams) (error, bool) {
 		return errors.New("两次密码不一致"), false
 	}
 	// 判断验证码是否正确
-	/*result, err := RedisClient().Get(ctx, param.Email).Result()
+	result, err := RedisClient().Get(ctx, param.Email).Result()
 	if err != nil {
-		return err, false
-	}*/
-
+		return errors.New("验证码失效"), false
+	}
+	if result != param.EmailCode {
+		return errors.New("验证码错误！"), false
+	}
+	// 将密码进行二次加密
+	encryptionPwd := utils.EncryptionPassword(param.Password)
+	// 将用户数据存入数据库
+	if err := pool.Create(&entity.SysUser{
+		UserName: param.UserName,
+		Phone:    param.Phone,
+		Password: encryptionPwd,
+		Email:    param.Email,
+		UUID:     utils.CreateUUID(),
+	}).Error; err != nil {
+		return errors.New("注册失败！"), false
+	}
 	// 判断
 	return nil, true
+}
+
+// PhoneLoginService 电话号码登录
+func PhoneLoginService(param *request.PhoneLoginParams) (error, bool, string) {
+	// 创建数据库数组对象
+	var user []entity.SysUser
+	// 验证参数为空
+	if utils.StrIsEmpty(param.Phone) || utils.StrIsEmpty(param.Password) {
+		return errors.New("参数为空"), false, ""
+	}
+	// 验证电话号码格式
+	if utils.VerPhoneReg(param.Phone) {
+		return errors.New("电话号码格式错误"), false, ""
+	}
+	// 验证密码格式
+	if len(param.Password) != 32 {
+		return errors.New("密码格式错误"), false, ""
+	}
+	// 判断此用户是否存在
+	// 通过电话号码查询用户
+	err := pool.Where("phone=?", param.Phone).Find(&user).Error
+	if err != nil {
+		return errors.New("登录失败"), false, ""
+	}
+	// 通过判断用户列表长度，判断是否有此用户
+	if len(user) < 1 {
+		return errors.New("此用户暂未注册！"), false, ""
+	}
+	// 验证密码正确性
+	if !utils.ComparePassword(user[0].Password, param.Password) {
+		return errors.New("账号/密码错误！"), false, ""
+	}
+	// 生成 Token
+	token := utils.GenerateToken(&request.TokenParams{
+		UserInfo:       user[0],
+		StandardClaims: jwt.StandardClaims{},
+	})
+	if utils.StrIsEmpty(token) {
+		return errors.New("登录失败"), false, ""
+	}
+	// 将 Token 存入 Redis
+	if _, err := RedisClient().Set(ctx, token, param.Phone, config.TokenEffectAge).Result(); err != nil {
+		return errors.New("登录失败"), false, ""
+	}
+
+	return nil, true, token
 }
