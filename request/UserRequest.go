@@ -41,14 +41,22 @@ type PhoneLoginParams struct {
 	Password string `json:"password" binding:"required,len=32"`
 }
 
+// TokenParams 定义 Token 类型
+type TokenParams struct {
+	UserInfo           entity.SysUser // 用户信息
+	jwt.StandardClaims                // token 配置
+}
+
 // EmailLoginParams 邮箱登录参数
 type EmailLoginParams struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required,len=32"`
 }
 
-// TokenParams 定义 Token 类型
-type TokenParams struct {
-	UserInfo           entity.SysUser // 用户信息
-	jwt.StandardClaims                // token 配置
+// ForgotPasswordParams 忘记密码参数
+type ForgotPasswordParams struct {
+	Email       string `json:"email" binding:"required"`
+	EmailCode   string `json:"email_code" binding:"required,len=6"`
+	NewPassword string `json:"new_password" binding:"required,len=32"`
+	VerPassword string `json:"ver_password" binding:"required,len=32"`
 }

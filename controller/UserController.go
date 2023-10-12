@@ -167,9 +167,123 @@ func PhoneLogin(c *gin.Context) {
 	}
 	// 注册失败
 	if !status {
-		utils.FailResult(c, "注册失败")
+		utils.FailResult(c, "登录失败")
 		return
 	}
 	// 注册成功
 	utils.SuccessResult(c, "登录成功！", map[string]interface{}{"token": token})
+}
+
+// EmailLogin 邮箱登录
+func EmailLogin(c *gin.Context) {
+	// 拿到电话号码登录参数实体类
+	var param request.EmailLoginParams
+	// 绑定参数
+	err := c.ShouldBindJSON(&param)
+	// 参数绑定失败
+	if err != nil {
+		utils.FailResult(c, "参数错误！")
+		return
+	}
+	// 验证完成后
+	err, status, token := service.EmailLoginService(&param)
+	if err != nil {
+		utils.FailResult(c, err.Error())
+		return
+	}
+	// 注册失败
+	if !status {
+		utils.FailResult(c, "登录失败")
+		return
+	}
+	// 注册成功
+	utils.SuccessResult(c, "登录成功！", map[string]interface{}{"token": token})
+}
+
+// ForgotPassword 忘记密码
+func ForgotPassword(c *gin.Context) {
+	// 获取参数接口实例
+	var param request.ForgotPasswordParams
+	// 绑定参数
+	err := c.ShouldBindJSON(&param)
+	// 参数绑定失败
+	if err != nil {
+		utils.FailResult(c, "参数错误！")
+		return
+	}
+	// 验证完成后
+	err, status := service.ForgotPasswordService(&param)
+	if err != nil {
+		utils.FailResult(c, err.Error())
+		return
+	}
+	// 注册失败
+	if !status {
+		utils.FailResult(c, "修改失败")
+		return
+	}
+	// 注册成功
+	utils.SuccessResult(c, "修改成功！", nil)
+}
+
+// UserInfo 用户信息
+func UserInfo(c *gin.Context) {
+	// 获取用户信息
+	user, _ := c.Get("user")
+	// 判断用户信息是否存在
+	if user == nil {
+		utils.FailResult(c, "登陆失效，请重新登录！")
+		return
+	}
+	// 将user转化为 TokenParam类型
+	tokenParam, ok := user.(*request.TokenParams)
+	// 判断是否转化正确
+	if !ok {
+		utils.FailResult(c, "登陆失效，请重新登录！")
+		return
+	}
+	// 返回用户信息
+	utils.SuccessResult(c, "获取成功！", request.UserResponse{
+		Name:          tokenParam.UserInfo.UserName,
+		Phone:         tokenParam.UserInfo.Phone,
+		HeadSculpture: tokenParam.UserInfo.HeadSculpture,
+		Email:         tokenParam.UserInfo.Email,
+		Limit:         tokenParam.UserInfo.Limit,
+		Integral:      tokenParam.UserInfo.Integral,
+		Member:        tokenParam.UserInfo.Member,
+		CreateTime:    tokenParam.UserInfo.CreateTime.String(),
+		UpdateTime:    tokenParam.UserInfo.UpdateTime.String(),
+		UUID:          tokenParam.UserInfo.UUID,
+	})
+}
+
+// Logout 退出登录
+func Logout(c *gin.Context) {
+	// 获取用户信息
+	user, _ := c.Get("user")
+	// 获取Token
+	header := c.GetHeader("Authorization")
+	// 判断用户信息是否存在
+	if user == nil {
+		utils.FailResult(c, "登陆失效，请重新登录！")
+		return
+	}
+	// 将user转化为 TokenParam类型
+	tokenParam, ok := user.(*request.TokenParams)
+	// 判断是否转化正确
+	if !ok {
+		utils.FailResult(c, "登陆失效，请重新登录！")
+		return
+	}
+	err, logout := service.LogoutService(tokenParam, header)
+	if err != nil {
+		utils.FailResult(c, "退出失败")
+		return
+	}
+	if !logout {
+		utils.FailResult(c, "退出失败")
+		return
+	}
+	// 退出成功
+	utils.SuccessResult(c, "退出成功", nil)
 }

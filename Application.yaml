@@ -61,4 +61,15 @@ not_verify_url:
   - '/api/user/phoneLogin'
   - '/api/user/emailLogin'
   - '/api/user/sendEmailCode'
-  - '/api/user/forgetPassword'
+  - '/api/user/forgotPassword'
+# 跨域IP
+cors:
+  ip:
+    - 'http://127.0.0.1'
+    - 'http://39.101.72.168'
+    - 'http://localhost'
+  methods:
+    - 'GET'
+    - 'POST'
+    - 'PUT'
+    - 'DELETE'

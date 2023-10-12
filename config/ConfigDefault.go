@@ -60,6 +60,11 @@ type Config struct {
 	} `yaml:"token"`
 	// 绕过中间件验证的地址
 	NotVerifyUrl []string `yaml:"not_verify_url"`
+	// 跨域中间件验证地址
+	Cors struct {
+		Ip      []string `yaml:"ip"`
+		Methods []string `yaml:"methods"`
+	} `yaml:"cors"`
 }
 
 // Default 获取 yaml 配置
@@ -115,3 +120,6 @@ const TokenEffectAge = 1 * 24 * time.Hour
 
 // NotVerifyUrl 绕过验证的地址
 var NotVerifyUrl = Default().NotVerifyUrl
+
+// Cors 跨域
+var Cors = Default().Cors

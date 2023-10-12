@@ -22,4 +22,12 @@ func UserRouter(router *gin.RouterGroup) {
 	router.POST("/register", controller.Register)
 	// 电话号码登录
 	router.POST("/phoneLogin", controller.PhoneLogin)
+	// 邮箱登录
+	router.POST("/emailLogin", controller.EmailLogin)
+	// 忘记密码
+	router.POST("/forgotPassword", controller.ForgotPassword)
+	// 获取用户信息
+	router.GET("/userInfo", controller.UserInfo)
+	// 退出登录
+	router.POST("/logout", controller.Logout)
 }

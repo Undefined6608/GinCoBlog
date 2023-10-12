@@ -25,7 +25,7 @@ func main() {
 	// 获取项目路由
 	router := gin.New()
 	// 挂载中间件
-	router.Use(gin.Logger(), gin.Recovery(), middleware.LoggerToFile(), middleware.JwtVerifyMiddle())
+	router.Use(gin.Logger(), gin.Recovery(), middleware.CorsMiddleware(), middleware.LoggerToFile(), middleware.JwtVerifyMiddle())
 	// 加载代理中间件
 	err := router.SetTrustedProxies([]string{"192.168.1.0/24"})
 	if err != nil {

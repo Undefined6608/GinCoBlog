@@ -28,25 +28,21 @@ func resultType(code int, msg string, data interface{}) config.Response {
 // SuccessResult 成功响应
 func SuccessResult(c *gin.Context, msg string, data interface{}) {
 	c.JSON(http.StatusOK, resultType(http.StatusOK, msg, data))
-	c.Next()
 }
 
 // FailResult 错误响应
 func FailResult(c *gin.Context, msg string) {
 	c.JSON(http.StatusBadRequest, resultType(http.StatusBadRequest, msg, nil))
-	c.Next()
 }
 
 // ServerErrorResult 服务器错误响应
 func ServerErrorResult(c *gin.Context) {
 	c.JSON(http.StatusInternalServerError, resultType(http.StatusInternalServerError, "服务器错误！", nil))
-	c.Next()
 }
 
 // AuthorizationResult 权限错误响应
 func AuthorizationResult(c *gin.Context, msg string) {
 	c.JSON(http.StatusUnauthorized, resultType(http.StatusUnauthorized, msg, nil))
-	c.Next()
 }
 
 // StrIsEmpty 判断字符串为空

@@ -9,6 +9,7 @@ import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
+	"log"
 	"time"
 )
 
@@ -165,6 +166,10 @@ func RegisterService(param *request.RegisterParams) (error, bool) {
 	if result != param.EmailCode {
 		return errors.New("验证码错误！"), false
 	}
+	// 将 redis 中验证码删除
+	if _, err := RedisClient().Del(ctx, param.Email).Result(); err != nil {
+		return errors.New("注册失败"), false
+	}
 	// 将密码进行二次加密
 	encryptionPwd := utils.EncryptionPassword(param.Password)
 	// 将用户数据存入数据库
@@ -211,6 +216,59 @@ func PhoneLoginService(param *request.PhoneLoginParams) (error, bool, string) {
 	if !utils.ComparePassword(user[0].Password, param.Password) {
 		return errors.New("账号/密码错误！"), false, ""
 	}
+	if user[0].Available {
+		return errors.New("账号不存在/异常"), false, ""
+	}
+	// 生成 Token
+	token := utils.GenerateToken(&request.TokenParams{
+		UserInfo:       user[0],
+		StandardClaims: jwt.StandardClaims{},
+	})
+	if utils.StrIsEmpty(token) {
+		return errors.New("登录失败"), false, ""
+	}
+	log.Println("user")
+	// 将 Token 存入 Redis
+	if _, err := RedisClient().Set(ctx, token, param.Phone, config.TokenEffectAge).Result(); err != nil {
+		return errors.New("登录失败"), false, ""
+	}
+
+	return nil, true, token
+}
+
+// EmailLoginService 邮箱登录
+func EmailLoginService(param *request.EmailLoginParams) (error, bool, string) {
+	// 创建数据库数组对象
+	var user []entity.SysUser
+	// 验证参数为空
+	if utils.StrIsEmpty(param.Email) || utils.StrIsEmpty(param.Password) {
+		return errors.New("参数为空"), false, ""
+	}
+	// 验证邮箱格式
+	if utils.VerEmailReg(param.Email) {
+		return errors.New("邮箱格式错误"), false, ""
+	}
+	// 验证密码格式
+	if len(param.Password) != 32 {
+		return errors.New("密码格式错误"), false, ""
+	}
+	// 判断此用户是否存在
+	// 通过邮箱查询用户
+	err := pool.Where("email=?", param.Email).Find(&user).Error
+	if err != nil {
+		return errors.New("登录失败"), false, ""
+	}
+	// 通过判断用户列表长度，判断是否有此用户
+	if len(user) < 1 {
+		return errors.New("此用户暂未注册！"), false, ""
+	}
+	// 验证密码正确性
+	if !utils.ComparePassword(user[0].Password, param.Password) {
+		return errors.New("账号/密码错误！"), false, ""
+	}
+	if user[0].Available {
+		return errors.New("账号不存在/异常"), false, ""
+	}
 	// 生成 Token
 	token := utils.GenerateToken(&request.TokenParams{
 		UserInfo:       user[0],
@@ -220,9 +278,83 @@ func PhoneLoginService(param *request.PhoneLoginParams) (error, bool, string) {
 		return errors.New("登录失败"), false, ""
 	}
 	// 将 Token 存入 Redis
-	if _, err := RedisClient().Set(ctx, token, param.Phone, config.TokenEffectAge).Result(); err != nil {
+	if _, err := RedisClient().Set(ctx, token, param.Email, config.TokenEffectAge).Result(); err != nil {
 		return errors.New("登录失败"), false, ""
 	}
 
 	return nil, true, token
+}
+
+// ForgotPasswordService ForgotPassword 忘记密码
+func ForgotPasswordService(param *request.ForgotPasswordParams) (error, bool) {
+	// 创建数据库数组对象
+	var user []entity.SysUser
+	// 验证参数为空
+	if utils.StrIsEmpty(param.Email) || utils.StrIsEmpty(param.EmailCode) || utils.StrIsEmpty(param.NewPassword) || utils.StrIsEmpty(param.VerPassword) {
+		return errors.New("参数为空"), false
+	}
+	// 验证邮箱格式
+	if utils.VerEmailReg(param.Email) {
+		return errors.New("邮箱格式错误"), false
+	}
+	// 验证密码格式
+	if len(param.NewPassword) != 32 || len(param.VerPassword) != 32 {
+		return errors.New("密码格式错误"), false
+	}
+	// 验证新密码和验证密码是否一致
+	if param.NewPassword != param.VerPassword {
+		return errors.New("两次密码不一致"), false
+	}
+	// 验证验证码格式
+	if len(param.EmailCode) != 6 {
+		return errors.New("验证码格式错误"), false
+	}
+	// 验证验证码是否正确
+	if result, err := RedisClient().Get(ctx, param.Email).Result(); err != nil || result != param.EmailCode {
+		return errors.New("验证码错误"), false
+	}
+	// 删除 redis 中的验证码
+	if _, err := RedisClient().Del(ctx, param.Email).Result(); err != nil {
+		return errors.New("修改失败"), false
+	}
+	// 判断此用户是否存在
+	// 通过邮箱查询用户
+	err := pool.Where("email=?", param.Email).Find(&user).Error
+	if err != nil {
+		return errors.New("修改失败"), false
+	}
+	// 通过判断用户列表长度，判断是否有此用户
+	if len(user) < 1 {
+		return errors.New("账号不存在"), false
+	}
+	// 对密码进行加密
+	encryptionPassword := utils.EncryptionPassword(param.NewPassword)
+	// 修改密码 SQL
+	err = pool.Model(&entity.SysUser{}).Where("uid", user[0].UID).Update("password", encryptionPassword).Error
+	if err != nil {
+		return errors.New("修改失败"), false
+	}
+	// 修改成功
+	return nil, true
+}
+
+// VerUserByToken 通过Token查找用户
+func VerUserByToken(token string) (string, error) {
+	// 验证数据库中是否存有此token
+	user, err := RedisClient().Get(ctx, token).Result()
+	return user, err
+}
+
+// LogoutService 退出登录
+func LogoutService(param *request.TokenParams, token string) (error, bool) {
+	// 判断参数是否为空
+	if param == nil {
+		return errors.New("退出失败"), false
+	}
+	// 删除 Redis
+	_, err := RedisClient().Del(ctx, token).Result()
+	if err != nil {
+		return err, false
+	}
+	return nil, true
 }

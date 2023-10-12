@@ -5,13 +5,9 @@ import (
 	"GinCoBlog/request"
 	"GinCoBlog/service"
 	"GinCoBlog/utils"
-	"context"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-)
-
-var (
-	ctx context.Context
+	"log"
 )
 
 // JwtVerifyMiddle /**验证token
@@ -23,6 +19,7 @@ func JwtVerifyMiddle() gin.HandlerFunc {
 		}
 		token := c.GetHeader("Authorization")
 		if token == "" {
+			log.Println("")
 			utils.AuthorizationResult(c, "权限验证失败,无法访问系统资源！")
 			// 终止请求
 			c.Abort()
@@ -38,13 +35,9 @@ func JwtVerifyMiddle() gin.HandlerFunc {
 // 解析Token
 func parseToken(c *gin.Context, tokenString string) *request.TokenParams {
 	// 验证数据库中是否存有此token
-	user, err := service.RedisClient().Get(ctx, "token"+tokenString).Result()
+	user, err := service.VerUserByToken(tokenString)
 	// 没查到
-	if err != nil {
-		utils.AuthorizationResult(c, "权限验证失败,无法访问系统资源！")
-		c.Abort()
-	}
-	if user != "" {
+	if err != nil || user == "" {
 		utils.AuthorizationResult(c, "权限验证失败,无法访问系统资源！")
 		c.Abort()
 		return nil
