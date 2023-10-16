@@ -3,6 +3,7 @@ package utils
 import (
 	"GinCoBlog/config"
 	"GinCoBlog/request"
+	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -141,7 +142,7 @@ func GenerateToken(claims *request.TokenParams) string {
 	return sign
 }
 
-// IsContainArr /**Token URL过滤
+// IsContainArr Token URL过滤
 func IsContainArr(noVerify []string, requestUrl string) bool {
 	for _, str := range noVerify {
 		if str == requestUrl {
@@ -149,4 +150,21 @@ func IsContainArr(noVerify []string, requestUrl string) bool {
 		}
 	}
 	return false
+}
+
+// GetCacheUser 获取缓存里的token信息
+func GetCacheUser(c *gin.Context) (error, *request.TokenParams) {
+	// 获取用户信息
+	user, _ := c.Get("user")
+	// 判断用户信息是否存在
+	if user == nil {
+		return errors.New("登录状态错误，请重新登录"), nil
+	}
+	// 将user转化为 TokenParam类型
+	tokenParam, ok := user.(*request.TokenParams)
+	// 判断是否转化正确
+	if !ok {
+		return errors.New("登录状态错误，请重新登录"), nil
+	}
+	return nil, tokenParam
 }

@@ -9,7 +9,6 @@ import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
-	"log"
 	"time"
 )
 
@@ -204,7 +203,7 @@ func PhoneLoginService(param *request.PhoneLoginParams) (error, bool, string) {
 	}
 	// 判断此用户是否存在
 	// 通过电话号码查询用户
-	err := pool.Where("phone=?", param.Phone).Find(&user).Error
+	err := pool.Where("phone", param.Phone).Find(&user).Error
 	if err != nil {
 		return errors.New("登录失败"), false, ""
 	}
@@ -227,7 +226,6 @@ func PhoneLoginService(param *request.PhoneLoginParams) (error, bool, string) {
 	if utils.StrIsEmpty(token) {
 		return errors.New("登录失败"), false, ""
 	}
-	log.Println("user")
 	// 将 Token 存入 Redis
 	if _, err := RedisClient().Set(ctx, token, param.Phone, config.TokenEffectAge).Result(); err != nil {
 		return errors.New("登录失败"), false, ""
@@ -343,6 +341,67 @@ func VerUserByToken(token string) (string, error) {
 	// 验证数据库中是否存有此token
 	user, err := RedisClient().Get(ctx, token).Result()
 	return user, err
+}
+
+// ModifyUserInfoService 修改用户信息
+func ModifyUserInfoService(param *request.ModifyUserInfoParams, userInfo *entity.SysUser) (error, bool) {
+	// 判断参数是否为空
+	if utils.StrIsEmpty(param.UserName) || utils.StrIsEmpty(param.Email) || utils.StrIsEmpty(param.Phone) || utils.StrIsEmpty(param.HeadSculpture) {
+		return errors.New("参数为空"), false
+	}
+	// 验证电话号码格式
+	if utils.VerPhoneReg(param.Phone) {
+		return errors.New("电话号码格式错误"), false
+	}
+	// 验证验证码格式
+	if len(param.EmailCode) != 6 {
+		return errors.New("验证码格式错误"), false
+	}
+	// 验证验证码是否正确
+	if result, err := RedisClient().Get(ctx, userInfo.Email).Result(); err != nil || result != param.EmailCode {
+		return errors.New("验证码错误"), false
+	}
+	// 修改数据
+	userInfo.UserName = param.UserName
+	userInfo.Phone = param.Phone
+	userInfo.Email = param.Email
+	userInfo.HeadSculpture = param.HeadSculpture
+	// 修改数据库
+	err := pool.Model(&entity.SysUser{}).Where("uid", userInfo.UID).Updates(userInfo).Error
+	// 修改失败
+	if err != nil {
+		return errors.New("修改失败"), false
+	}
+	// 修改成功
+	return nil, true
+}
+
+// ModifyPasswordService 修改密码
+func ModifyPasswordService(params *request.ModifyPasswordParams, userInfo *entity.SysUser) (error, bool) {
+	// 判断参数为空
+	if utils.StrIsEmpty(params.OldPassword) || utils.StrIsEmpty(params.NewPassword) {
+		return errors.New("参数为空"), false
+	}
+	// 判断新老密码是否一样
+	if params.OldPassword == params.NewPassword {
+		return errors.New("两次输入的密码一样"), false
+	}
+	// 验证密码正确性
+	if !utils.ComparePassword(userInfo.Password, params.OldPassword) {
+		return errors.New("旧密码错误！"), false
+	}
+	if params.NewPassword != params.VerifiedPassword {
+		return errors.New("新密码与验证密码不一致！"), false
+	}
+	// 将密码进行二次加密
+	encryptionPwd := utils.EncryptionPassword(params.NewPassword)
+	// 修改数据库
+	err := pool.Model(&entity.SysUser{}).Where("uid", userInfo.UID).Update("password", encryptionPwd).Error
+	if err != nil {
+		return errors.New("修改失败"), false
+	}
+	// 修改成功
+	return nil, true
 }
 
 // LogoutService 退出登录

@@ -28,6 +28,10 @@ func UserRouter(router *gin.RouterGroup) {
 	router.POST("/forgotPassword", controller.ForgotPassword)
 	// 获取用户信息
 	router.GET("/userInfo", controller.UserInfo)
+	// 修改用户信息
+	router.POST("/modifyUserInfo", controller.ModifyUserInfo)
+	// 修改密码
+	router.POST("/modifyPassword", controller.ModifyPassword)
 	// 退出登录
 	router.POST("/logout", controller.Logout)
 }

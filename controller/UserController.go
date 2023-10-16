@@ -228,18 +228,9 @@ func ForgotPassword(c *gin.Context) {
 
 // UserInfo 用户信息
 func UserInfo(c *gin.Context) {
-	// 获取用户信息
-	user, _ := c.Get("user")
-	// 判断用户信息是否存在
-	if user == nil {
-		utils.FailResult(c, "登陆失效，请重新登录！")
-		return
-	}
-	// 将user转化为 TokenParam类型
-	tokenParam, ok := user.(*request.TokenParams)
-	// 判断是否转化正确
-	if !ok {
-		utils.FailResult(c, "登陆失效，请重新登录！")
+	err, tokenParam := utils.GetCacheUser(c)
+	if err != nil {
+		utils.FailResult(c, err.Error())
 		return
 	}
 	// 返回用户信息
@@ -255,6 +246,60 @@ func UserInfo(c *gin.Context) {
 		UpdateTime:    tokenParam.UserInfo.UpdateTime.String(),
 		UUID:          tokenParam.UserInfo.UUID,
 	})
+}
+
+// ModifyUserInfo 修改用户信息
+func ModifyUserInfo(c *gin.Context) {
+	var params request.ModifyUserInfoParams
+	err := c.ShouldBindJSON(&params)
+	if err != nil {
+		utils.FailResult(c, "参数错误")
+		return
+	}
+	err, tokenInfo := utils.GetCacheUser(c)
+	if err != nil {
+		utils.AuthorizationResult(c, err.Error())
+		return
+	}
+	err, status := service.ModifyUserInfoService(&params, &tokenInfo.UserInfo)
+	if err != nil {
+		utils.FailResult(c, err.Error())
+		return
+	}
+	if !status {
+		utils.FailResult(c, "修改失败")
+		return
+	}
+	utils.SuccessResult(c, "修改成功", nil)
+}
+
+// ModifyPassword 修改密码
+func ModifyPassword(c *gin.Context) {
+	// 获取参数类型对象
+	var params request.ModifyPasswordParams
+	// 绑定参数
+	err := c.ShouldBindJSON(&params)
+	// 绑定失败
+	if err != nil {
+		utils.FailResult(c, "参数错误")
+		return
+	}
+	// 获取Token信息
+	err, tokenInfo := utils.GetCacheUser(c)
+	if err != nil {
+		utils.AuthorizationResult(c, "登录失效")
+		return
+	}
+	err, status := service.ModifyPasswordService(&params, &tokenInfo.UserInfo)
+	if err != nil {
+		utils.FailResult(c, err.Error())
+		return
+	}
+	if !status {
+		utils.FailResult(c, "修改失败")
+		return
+	}
+	utils.SuccessResult(c, "修改成功", nil)
 }
 
 // Logout 退出登录

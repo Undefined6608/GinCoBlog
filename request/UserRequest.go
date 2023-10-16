@@ -60,3 +60,19 @@ type ForgotPasswordParams struct {
 	NewPassword string `json:"new_password" binding:"required,len=32"`
 	VerPassword string `json:"ver_password" binding:"required,len=32"`
 }
+
+// ModifyUserInfoParams 修改用户信息参数
+type ModifyUserInfoParams struct {
+	UserName      string `json:"user_name" binding:"required,min=3,max=15"`
+	Phone         string `json:"phone" binding:"required,len=11"`
+	Email         string `json:"email" binding:"required"`
+	HeadSculpture string `json:"head_sculpture" binding:"required"`
+	EmailCode     string `json:"email_code" binding:"required,len=6"`
+}
+
+// ModifyPasswordParams 修改密码参数
+type ModifyPasswordParams struct {
+	OldPassword      string `json:"old_password" binding:"required,len=32"`
+	NewPassword      string `json:"new_password" binding:"required,len=32"`
+	VerifiedPassword string `json:"verified_password" binding:"required,len=32"`
+}
