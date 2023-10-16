@@ -62,6 +62,8 @@ not_verify_url:
   - '/api/user/emailLogin'
   - '/api/user/sendEmailCode'
   - '/api/user/forgotPassword'
+  - '/api/article/articleType'
+  - '/api/article/articleList'
 # 跨域IP
 cors:
   ip:
@@ -73,3 +75,22 @@ cors:
     - 'POST'
     - 'PUT'
     - 'DELETE'
+# 上传文件配置
+upload:
+  # 基础返回地址
+  host: 'http://39.101.72.168:81/image/'
+  # 存储位置
+  img_load:
+    user: 'uploads/' # 用户头像存储目录
+    article: 'uploads/article/' # 文章图片存储目录
+  # 文件大小
+  max_size:
+    # 图片
+    img: 10
+  # 可上传的类型
+  img_type:
+    - '.jpg'
+    - '.jpeg'
+    - '.png'
+    - '.bmp'
+    - '.gif'

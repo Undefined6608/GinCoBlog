@@ -12,9 +12,6 @@ import (
 	"time"
 )
 
-// 获取数据库连接池
-var pool = Pool()
-
 // 定义上下文对象
 var (
 	ctx = context.Background()

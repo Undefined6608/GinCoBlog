@@ -6,4 +6,8 @@ import "github.com/gin-gonic/gin"
 func SetupRouterGroup(router *gin.RouterGroup) {
 	// 调取用户路由
 	UserRouter(router.Group("/user"))
+	// 调取上传路由
+	UploadRouter(router.Group("/upload"))
+	// 调取文章路由
+	ArticleRouter(router.Group("/article"))
 }

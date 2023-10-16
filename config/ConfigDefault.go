@@ -65,6 +65,18 @@ type Config struct {
 		Ip      []string `yaml:"ip"`
 		Methods []string `yaml:"methods"`
 	} `yaml:"cors"`
+	// 上传配置
+	Upload struct {
+		Host    string `yaml:"host"`
+		ImgLoad struct {
+			User    string `yaml:"user"`
+			Article string `yaml:"article"`
+		} `yaml:"img_load"`
+		MaxSize struct {
+			Img int64 `yaml:"img"`
+		} `yaml:"max_size"`
+		ImgType []string `yaml:"img_type"`
+	} `yaml:"upload"`
 }
 
 // Default 获取 yaml 配置
@@ -123,3 +135,6 @@ var NotVerifyUrl = Default().NotVerifyUrl
 
 // Cors 跨域
 var Cors = Default().Cors
+
+// Upload 上传配置
+var Upload = Default().Upload

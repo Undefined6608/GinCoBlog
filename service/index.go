@@ -55,3 +55,6 @@ func RedisClient() *redis.Client {
 	}
 	return rdb
 }
+
+// 获取数据库连接池
+var pool = Pool()

@@ -13,6 +13,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"path/filepath"
 	"regexp"
 	"time"
 )
@@ -167,4 +168,32 @@ func GetCacheUser(c *gin.Context) (error, *request.TokenParams) {
 		return errors.New("登录状态错误，请重新登录"), nil
 	}
 	return nil, tokenParam
+}
+
+// GenerateFileName 生成文件名
+func GenerateFileName(originalName string) string {
+	// 提取文件后缀
+	extension := filepath.Ext(originalName)
+	// 生成 UUID 字符串
+	uuidFilename := uuid.NewV4().String()
+	// 返回拼接字符串
+	return uuidFilename + extension
+}
+
+// IsAllowedImageType 定义允许上传的文件类型
+func IsAllowedImageType(extension string) bool {
+	// 获取允许的类型
+	allowedImageTypes := config.Upload.ImgType
+	// 判断是否符合该类型
+	return contains(allowedImageTypes, extension)
+}
+
+// 判断是否允许上传
+func contains(slice []string, val string) bool {
+	for _, item := range slice {
+		if item == val {
+			return true
+		}
+	}
+	return false
 }
