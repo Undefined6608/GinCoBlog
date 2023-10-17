@@ -37,9 +37,78 @@ func ArticleListByType(c *gin.Context) {
 		return
 	}
 	// 查询数据库
-	if err := service.ArticleListByTypeId(&articleList, params.TypeId); err != nil {
+	if err := service.ArticleListByTypeIdService(&articleList, params.TypeId); err != nil {
 		utils.FailResult(c, "获取失败")
 		return
 	}
 	utils.SuccessResult(c, "获取成功", map[string][]entity.Article{"rows": articleList})
+}
+
+// ArticleInfoById 文章详情
+func ArticleInfoById(c *gin.Context) {
+	var params request.ArticleInfoByIdParam
+	var info entity.Article
+	// 绑定参数
+	err := c.ShouldBindJSON(&params)
+	if err != nil {
+		utils.FailResult(c, "参数错误")
+		return
+	}
+	// 查询数据库
+	if err := service.ArticleInfoByIdService(&info, params.ArticleId); err != nil {
+		utils.FailResult(c, "获取失败")
+		return
+	}
+	utils.SuccessResult(c, "获取成功", map[string]entity.Article{"data": info})
+}
+
+// AddArticle 添加文章
+func AddArticle(c *gin.Context) {
+	// 获取参数实例
+	var params request.AddArticleParam
+	// 绑定参数
+	err := c.ShouldBindJSON(&params)
+	if err != nil {
+		utils.FailResult(c, "参数错误")
+		return
+	}
+	err, tokenInfo := utils.GetCacheUser(c)
+	if err != nil {
+		utils.AuthorizationResult(c, "登录状态失效")
+		return
+	}
+	// 将数据添加到数据库
+	err, status := service.AddArticleService(&params, tokenInfo.UserInfo)
+	if err != nil {
+		utils.FailResult(c, err.Error())
+		return
+	}
+	if !status {
+		utils.FailResult(c, "添加失败")
+	}
+	utils.SuccessResult(c, "添加成功", nil)
+}
+
+// UpdateRead 更新阅读量
+func UpdateRead(c *gin.Context) {
+	var params request.UpdateReadParam
+	// 绑定参数
+	err := c.ShouldBindJSON(&params)
+	if err != nil {
+		utils.FailResult(c, "参数错误")
+		return
+	}
+	// 修改数据库
+	err, status := service.UpdateReadService(&params)
+	if err != nil {
+		utils.FailResult(c, err.Error())
+		return
+	}
+	// 判断状态
+	if !status {
+		utils.FailResult(c, "设置失败")
+		return
+	}
+	// 设置成功
+	utils.SuccessResult(c, "更新成功", nil)
 }

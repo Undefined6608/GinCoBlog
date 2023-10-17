@@ -64,6 +64,8 @@ not_verify_url:
   - '/api/user/forgotPassword'
   - '/api/article/articleType'
   - '/api/article/articleList'
+  - '/api/article/articleInfo'
+  - '/api/article/updateRead'
 # 跨域IP
 cors:
   ip:

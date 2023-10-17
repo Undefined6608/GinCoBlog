@@ -16,8 +16,10 @@ import (
 	routes "GinCoBlog/router"
 	"GinCoBlog/service"
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // 项目主方法
@@ -45,7 +47,7 @@ func main() {
 	// 开启监听失败
 	if err != nil {
 		// 写入日志
-		panic("项目启动失败!")
+		log.Fatalln("项目启动失败!")
 		return
 	}
 }

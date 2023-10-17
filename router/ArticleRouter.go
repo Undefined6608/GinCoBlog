@@ -11,4 +11,10 @@ func ArticleRouter(router *gin.RouterGroup) {
 	router.GET("/articleType", controller.ArticleType)
 	// 通过类型 ID 获取文章列表
 	router.POST("/articleList", controller.ArticleListByType)
+	// 通过 ID 获取文章详情
+	router.POST("/articleInfo", controller.ArticleInfoById)
+	// 添加文章
+	router.POST("/addArticle", controller.AddArticle)
+	// 更新阅读量
+	router.POST("/updateRead", controller.UpdateRead)
 }
