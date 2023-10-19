@@ -8,10 +8,10 @@ WORKDIR /app
 COPY . .
 
 # 构建 Go 语言程序
-RUN go build -o main .
+RUN go build -o CoBlogInterface .
 
 # 暴露需要监听的端口
 EXPOSE 4001
 
 # 运行 Go 语言程序
-CMD ["./main"]
+CMD ["./CoBlogInterface"]

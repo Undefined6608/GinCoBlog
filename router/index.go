@@ -10,4 +10,6 @@ func SetupRouterGroup(router *gin.RouterGroup) {
 	UploadRouter(router.Group("/upload"))
 	// 调取文章路由
 	ArticleRouter(router.Group("/article"))
+	// 调取反馈路由
+	FeedBackRouter(router.Group("/feedback"))
 }

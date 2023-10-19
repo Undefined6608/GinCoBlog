@@ -66,6 +66,7 @@ not_verify_url:
   - '/api/article/articleList'
   - '/api/article/articleInfo'
   - '/api/article/updateRead'
+  - '/api/article/articleComment'
 # 跨域IP
 cors:
   ip:

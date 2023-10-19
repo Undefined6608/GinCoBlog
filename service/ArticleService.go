@@ -43,7 +43,7 @@ func ArticleInfoByIdService(info *entity.Article, articleId int32) error {
 }
 
 // AddArticleService 添加文章
-func AddArticleService(param *request.AddArticleParam, userInfo entity.SysUser) (error, bool) {
+func AddArticleService(param request.AddArticleParam, userInfo entity.SysUser) (error, bool) {
 	// 判断参数是否为空
 	if param.TypeId == 0 || utils.StrIsEmpty(param.Title) || utils.StrIsEmpty(param.Context) || utils.StrIsEmpty(param.Icon) {
 		return errors.New("参数为空"), false
@@ -64,7 +64,7 @@ func AddArticleService(param *request.AddArticleParam, userInfo entity.SysUser) 
 }
 
 // UpdateReadService 更新阅读量
-func UpdateReadService(param *request.UpdateReadParam) (error, bool) {
+func UpdateReadService(param request.UpdateReadParam) (error, bool) {
 	// 判断参数为空
 	if param.ArticleId == 0 {
 		return errors.New("参数为空"), false
@@ -74,5 +74,41 @@ func UpdateReadService(param *request.UpdateReadParam) (error, bool) {
 		return errors.New("修改失败"), false
 	}
 	// 修改成功
+	return nil, true
+}
+
+// ArticleCommentService 获取文章评论
+func ArticleCommentService(param request.ArticleCommentParam, comments *[]request.ArticleCommentResponse) error {
+	if param.ArticleId == 0 {
+		return errors.New("参数为空")
+	}
+	// 获取数据库信息
+	if err := pool.Table("article_comments").
+		Where("article_id", param.ArticleId).
+		Joins("INNER JOIN sys_user ON article_comments.user_id = sys_user.uid").
+		Select("article_comments.id, article_comments.article_id, article_comments.context, sys_user.user_name, sys_user.head_sculpture, sys_user.integral, sys_user.member").
+		Find(&comments).Error; err != nil {
+		return errors.New("获取失败")
+	}
+	// 获取成功
+	return nil
+}
+
+// AddArticleCommentService 添加文章评论
+func AddArticleCommentService(param *request.AddArticleCommentParam, userInfo entity.SysUser) (error, bool) {
+	// 判断参数是否为空
+	if param.ArticleId == 0 || utils.StrIsEmpty(param.Context) {
+		return errors.New("参数为空"), false
+	}
+	// 判断参数格式
+	// 将数据存入数据库
+	if err := pool.Model(&entity.ArticleComments{}).Create(&entity.ArticleComments{
+		ArticleID: param.ArticleId,
+		UserID:    userInfo.UID,
+		Context:   param.Context,
+	}).Error; err != nil {
+		return errors.New("上传失败"), false
+	}
+	// 添加成功
 	return nil, true
 }
