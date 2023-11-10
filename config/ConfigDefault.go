@@ -1,9 +1,10 @@
 package config
 
 import (
-	"gopkg.in/yaml.v2"
 	"os"
 	"time"
+
+	"gopkg.in/yaml.v2"
 )
 
 // Config 配置 yaml 结构

@@ -139,3 +139,4 @@ time="2023-10-18T14:22:20+08:00" level=info msg="| 200 |     21.8702ms |       1
 time="2023-10-18T14:22:45+08:00" level=info msg="| 200 |      1.1326ms |       127.0.0.1 | GET | /api/article/articleComment?article_id=1 |"
 time="2023-10-18T15:50:26+08:00" level=info msg="| 200 |     76.5136ms |       127.0.0.1 | POST | /api/user/emailLogin |"
 time="2023-10-18T15:50:46+08:00" level=info msg="| 200 |      4.8186ms |       127.0.0.1 | POST | /api/feedback/addFeedback |"
+time="2023-11-10T02:19:43+08:00" level=info msg="| 200 |     81.7444ms |       127.0.0.1 | POST | /api/user/phoneLogin |"
