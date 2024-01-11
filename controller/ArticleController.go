@@ -29,9 +29,9 @@ func ArticleType(c *gin.Context) {
 // ArticleListByType 文章列表
 func ArticleListByType(c *gin.Context) {
 	var params request.ArticleListByTypeParam
-	var articleList []entity.Article
+	var articleList []request.ArticleListResponse
 	// 绑定参数
-	err := c.ShouldBindQuery(params)
+	err := c.ShouldBindQuery(&params)
 	if err != nil {
 		utils.FailResult(c, "参数错误")
 		return
@@ -41,7 +41,7 @@ func ArticleListByType(c *gin.Context) {
 		utils.FailResult(c, "获取失败")
 		return
 	}
-	utils.SuccessResult(c, "获取成功", map[string][]entity.Article{"rows": articleList})
+	utils.SuccessResult(c, "获取成功", map[string][]request.ArticleListResponse{"rows": articleList})
 }
 
 // ArticleInfoById 文章详情

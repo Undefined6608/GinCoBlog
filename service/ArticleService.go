@@ -11,20 +11,31 @@ import (
 // ArticleTypeService 文章类型
 func ArticleTypeService(list *[]entity.ArticleType) error {
 	// 获取数据库内的文章类型数据
-	if err := pool.Model(&entity.ArticleType{}).Where("type_visible", 1).Find(&list).Error; err != nil {
+	if err := pool.Model(&entity.ArticleType{}).
+		Where("type_visible", 1).
+		Find(&list).
+		Error; err != nil {
 		return errors.New("获取失败")
 	}
 	return nil
 }
 
 // ArticleListByTypeIdService 根据文章类型查询文章列表
-func ArticleListByTypeIdService(list *[]entity.Article, typeId int32) error {
+func ArticleListByTypeIdService(list *[]request.ArticleListResponse, typeId int32) error {
 	// 判断参数格式
 	if typeId == 0 {
 		return errors.New("参数为空")
 	}
 	// 获取数据库内的文章类型数据
-	if err := pool.Model(&entity.Article{}).Select("id", "type_id", "user_id", "title", "read", "create_time", "icon").Where("type_id=? AND article_visible=?", typeId, 1).Find(&list).Error; err != nil {
+	if err := pool.
+		Table("article").
+		Select("article.id, article.type_id, article.user_id, article.title, article.context, article.article_visible, "+
+			"article.read, article.create_time as date, article.icon, sys_user.user_name, sys_user.head_sculpture, "+
+			"sys_user.integral, sys_user.member, sys_user.uuid").
+		Joins("JOIN sys_user ON article.user_id = sys_user.uid").
+		Where("article.type_id = ? AND article.article_visible = ?", typeId, 1).
+		Find(&list).
+		Error; err != nil {
 		return errors.New("获取失败")
 	}
 	return nil
@@ -36,7 +47,11 @@ func ArticleInfoByIdService(info *entity.Article, articleId int32) error {
 		return errors.New("参数为空")
 	}
 	// 获取数据库信息
-	if err := pool.Model(&entity.Article{}).Where("id=? AND article_visible=?", articleId, 1).First(&info).Error; err != nil {
+	if err := pool.
+		Model(&entity.Article{}).
+		Where("id=? AND article_visible=?", articleId, 1).
+		First(&info).
+		Error; err != nil {
 		return errors.New("获取失败")
 	}
 	return nil

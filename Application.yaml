@@ -1,5 +1,6 @@
 # 项目端口号
 port: '4001'
+#port: '6005'
 # 服务器配置
 data_base:
   # 服务器地址
@@ -8,10 +9,13 @@ data_base:
   port: '3306'
   # 用户名
   user_name: 'root'
+#  user_name: 'co_blog_gin'
   # 密码
   password: '555555'
+#  password: 'mPJCSjCcfCyz68hL'
   # 数据库名
   schema: 'gin_co_blog'
+#  schema: 'co_blog_gin'
 # 日志配置
 log_config:
   # 日志存储位置
@@ -55,6 +59,7 @@ token:
   private_key: 'af28c9fe-9426-41dd-8ea7-cba762ec0f1e'
 # 不验证的接口地址
 not_verify_url:
+  - '/api/user/userNameOccupy'
   - '/api/user/phoneOccupy'
   - '/api/user/emailOccupy'
   - '/api/user/register'
@@ -70,9 +75,11 @@ not_verify_url:
 # 跨域IP
 cors:
   ip:
-    - 'http://127.0.0.1'
-    - 'http://39.101.72.168'
     - 'http://localhost'
+    - 'http://127.0.0.1'
+    - 'http://127.0.0.1:3000'
+    - 'http://39.101.72.168'
+    - 'http://localhost:3000'
   methods:
     - 'GET'
     - 'POST'
@@ -81,10 +88,10 @@ cors:
 # 上传文件配置
 upload:
   # 基础返回地址
-  host: 'http://39.101.72.168:81/image/'
+  host: 'http://39.101.72.168:88/'
   # 存储位置
   img_load:
-    user: 'uploads/' # 用户头像存储目录
+    user: 'uploads/avatar/' # 用户头像存储目录
     article: 'uploads/article/' # 文章图片存储目录
   # 文件大小
   max_size:

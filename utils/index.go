@@ -34,17 +34,17 @@ func SuccessResult(c *gin.Context, msg string, data interface{}) {
 
 // FailResult 错误响应
 func FailResult(c *gin.Context, msg string) {
-	c.JSON(http.StatusBadRequest, resultType(http.StatusBadRequest, msg, nil))
+	c.JSON(http.StatusOK, resultType(http.StatusBadRequest, msg, nil))
 }
 
 // ServerErrorResult 服务器错误响应
 func ServerErrorResult(c *gin.Context) {
-	c.JSON(http.StatusInternalServerError, resultType(http.StatusInternalServerError, "服务器错误！", nil))
+	c.JSON(http.StatusOK, resultType(http.StatusInternalServerError, "服务器错误！", nil))
 }
 
 // AuthorizationResult 权限错误响应
 func AuthorizationResult(c *gin.Context, msg string) {
-	c.JSON(http.StatusUnauthorized, resultType(http.StatusUnauthorized, msg, nil))
+	c.JSON(http.StatusOK, resultType(http.StatusUnauthorized, msg, nil))
 }
 
 // StrIsEmpty 判断字符串为空

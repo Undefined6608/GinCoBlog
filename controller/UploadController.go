@@ -38,7 +38,7 @@ func UserAvatar(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessResult(c, "上传成功", map[string]interface{}{"fileName": config.Upload.Host + newName})
+	utils.SuccessResult(c, "上传成功", map[string]interface{}{"url": config.Upload.Host + "avatar/" + newName})
 }
 
 func ArticleIcon(c *gin.Context) {
@@ -71,5 +71,5 @@ func ArticleIcon(c *gin.Context) {
 		return
 	}
 
-	utils.SuccessResult(c, "上传成功", map[string]interface{}{"fileName": config.Upload.Host + newName})
+	utils.SuccessResult(c, "上传成功", map[string]interface{}{"url": config.Upload.Host + "article/" + newName})
 }
