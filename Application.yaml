@@ -11,7 +11,7 @@ data_base:
   user_name: 'root'
 #  user_name: 'co_blog_gin'
   # 密码
-  password: '555555'
+  password: '071b956d-9b14-4bc3-8a59-a78ed16eb153'
 #  password: 'mPJCSjCcfCyz68hL'
   # 数据库名
   schema: 'gin_co_blog'
