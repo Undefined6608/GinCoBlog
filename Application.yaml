@@ -1,6 +1,6 @@
 # 项目端口号
-port: '4001'
-#port: '6005'
+#port: '4001'
+port: '6005'
 # 服务器配置
 data_base:
   # 服务器地址
@@ -15,7 +15,6 @@ data_base:
 #  password: 'mPJCSjCcfCyz68hL'
   # 数据库名
   schema: 'gin_co_blog'
-#  schema: 'co_blog_gin'
 # 日志配置
 log_config:
   # 日志存储位置
@@ -44,7 +43,7 @@ email_config:
 redis_config:
   host: '127.0.0.1'
   port: '6379'
-  password: ''
+  password: '6728d0b3-b77d-4783-896a-b8a6be7c87ad'
   db: 0
 # 加密
 encryption:
@@ -78,7 +77,6 @@ cors:
     - 'http://localhost'
     - 'http://127.0.0.1'
     - 'http://127.0.0.1:3000'
-    - 'http://39.101.72.168'
     - 'http://localhost:3000'
   methods:
     - 'GET'
@@ -89,6 +87,8 @@ cors:
 upload:
   # 基础返回地址
   host: 'http://39.101.72.168:88/'
+  # 基础路径
+  path: '/blog-upload'
   # 存储位置
   img_load:
     user: 'uploads/avatar/' # 用户头像存储目录

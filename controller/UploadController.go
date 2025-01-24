@@ -26,19 +26,19 @@ func UserAvatar(c *gin.Context) {
 	}
 
 	// 检查文件大小
-	if file.Size > (config.Upload.MaxSize.Img << 20) { // 限制文件大小为 5MB
+	if file.Size > (config.Default().Upload.MaxSize.Img << 20) { // 限制文件大小为 5MB
 		utils.FailResult(c, "文件大小超过限制")
 		return
 	}
 
 	// 保存上传的文件到本地
-	dst := fmt.Sprintf(config.Upload.ImgLoad.User+"%s", newName)
+	dst := fmt.Sprintf(config.Default().Upload.ImgLoad.User+"%s", newName)
 	if err := c.SaveUploadedFile(file, dst); err != nil {
 		utils.FailResult(c, err.Error())
 		return
 	}
 
-	utils.SuccessResult(c, "上传成功", map[string]interface{}{"url": config.Upload.Host + "avatar/" + newName})
+	utils.SuccessResult(c, "上传成功", map[string]interface{}{"url": config.Default().Upload.Path + "avatar/" + newName})
 }
 
 func ArticleIcon(c *gin.Context) {
@@ -59,17 +59,17 @@ func ArticleIcon(c *gin.Context) {
 	}
 
 	// 检查文件大小
-	if file.Size > (config.Upload.MaxSize.Img << 20) { // 限制文件大小为 5MB
+	if file.Size > (config.Default().Upload.MaxSize.Img << 20) { // 限制文件大小为 5MB
 		utils.FailResult(c, "文件大小超过限制")
 		return
 	}
 
 	// 保存上传的文件到本地
-	dst := fmt.Sprintf(config.Upload.ImgLoad.Article+"%s", newName)
+	dst := fmt.Sprintf(config.Default().Upload.ImgLoad.Article+"%s", newName)
 	if err := c.SaveUploadedFile(file, dst); err != nil {
 		utils.FailResult(c, err.Error())
 		return
 	}
 
-	utils.SuccessResult(c, "上传成功", map[string]interface{}{"url": config.Upload.Host + "article/" + newName})
+	utils.SuccessResult(c, "上传成功", map[string]interface{}{"url": config.Default().Upload.Path + "article/" + newName})
 }

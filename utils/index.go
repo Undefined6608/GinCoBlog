@@ -54,13 +54,13 @@ func StrIsEmpty(str string) bool {
 
 // VerPhoneReg /** 验证电话号码格式
 func VerPhoneReg(phone string) bool {
-	phoneReg := regexp.MustCompile(config.PhoneReg)
+	phoneReg := regexp.MustCompile(config.Default().Regular.Phone)
 	return !phoneReg.MatchString(phone)
 }
 
 // VerEmailReg /** 验证电话号码格式
 func VerEmailReg(email string) bool {
-	emailReg := regexp.MustCompile(config.EmailReg)
+	emailReg := regexp.MustCompile(config.Default().Regular.Email)
 	return !emailReg.MatchString(email)
 }
 
@@ -82,7 +82,7 @@ func SendEmail(email string) string {
 	// 创建消息
 	m := gomail.NewMessage()
 	// 设置发件地址和发件人
-	m.SetAddressHeader("From", config.EmailConfig.EmailAddress, config.EmailConfig.EmailName)
+	m.SetAddressHeader("From", config.Default().EmailConfig.EmailAddress, config.Default().EmailConfig.EmailName)
 	// 发送地址
 	m.SetHeader("To", email)
 	// 设置标题
@@ -95,7 +95,7 @@ func SendEmail(email string) string {
             <p>如果不是您本人操作，请无视此邮件</p>
         `)
 	// 使用 smtp发送邮件
-	s := gomail.NewDialer(config.EmailConfig.SmtpServer, config.EmailConfig.SmtpPort, config.EmailConfig.EmailAddress, config.EmailConfig.Password)
+	s := gomail.NewDialer(config.Default().EmailConfig.SmtpServer, config.Default().EmailConfig.SmtpPort, config.Default().EmailConfig.EmailAddress, config.Default().EmailConfig.Password)
 
 	if err := s.DialAndSend(m); err != nil {
 		panic("发送失败！")
@@ -111,7 +111,7 @@ func CreateUUID() string {
 
 // EncryptionPassword 密码加密
 func EncryptionPassword(pwd string) string {
-	password, err := bcrypt.GenerateFromPassword([]byte(pwd+config.Encryption.PrivateKey.Password), config.Encryption.Salt.Password)
+	password, err := bcrypt.GenerateFromPassword([]byte(pwd+config.Default().Encryption.PrivateKey.Password), config.Default().Encryption.Salt.Password)
 	if err != nil {
 		return ""
 	}
@@ -120,7 +120,7 @@ func EncryptionPassword(pwd string) string {
 
 // ComparePassword 密码验证
 func ComparePassword(hashPwd string, pwd string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hashPwd), []byte(pwd+config.Encryption.PrivateKey.Password))
+	err := bcrypt.CompareHashAndPassword([]byte(hashPwd), []byte(pwd+config.Default().Encryption.PrivateKey.Password))
 	if err != nil {
 		return false
 	}
@@ -134,7 +134,7 @@ func GenerateToken(claims *request.TokenParams) string {
 	//   2)通过这种方式，可以很方便的为token续期，而且也可以实现长时间不登录的话，强制登录
 	claims.ExpiresAt = time.Now().Add(config.TokenEffectAge).Unix()
 	//生成token
-	sign, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(config.TokenPrivateKey))
+	sign, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(config.Default().Token.PrivateKey))
 	if err != nil {
 		//这里因为项目接入了统一异常处理，所以使用panic并不会使程序终止，如不接入，可使用原始方式处理错误
 		log.Panicln("Token生成异常")
@@ -183,7 +183,7 @@ func GenerateFileName(originalName string) string {
 // IsAllowedImageType 定义允许上传的文件类型
 func IsAllowedImageType(extension string) bool {
 	// 获取允许的类型
-	allowedImageTypes := config.Upload.ImgType
+	allowedImageTypes := config.Default().Upload.ImgType
 	// 判断是否符合该类型
 	return contains(allowedImageTypes, extension)
 }

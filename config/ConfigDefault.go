@@ -69,6 +69,7 @@ type Config struct {
 	// 上传配置
 	Upload struct {
 		Host    string `yaml:"host"`
+		Path    string `yaml:"path"`
 		ImgLoad struct {
 			User    string `yaml:"user"`
 			Article string `yaml:"article"`
@@ -107,35 +108,5 @@ type Response struct {
 	Data    interface{} `json:"data"` // 数据
 }
 
-// LogFilePath 日志存放地址
-var LogFilePath = Default().LogConfig.Path
-
-// LogFileName 日志文件名
-var LogFileName = Default().LogConfig.Name
-
-// PhoneReg /** 定义电话号码正则
-var PhoneReg = Default().Regular.Phone
-
-// EmailReg /** 定义邮箱正则
-var EmailReg = Default().Regular.Email
-
-// EmailConfig /** 邮箱发送配置
-var EmailConfig = Default().EmailConfig
-
-// Encryption 加密配置
-var Encryption = Default().Encryption
-
-// TokenPrivateKey Token 私钥配置
-var TokenPrivateKey = Default().Token.PrivateKey
-
 // TokenEffectAge Token 生命周期配置
 const TokenEffectAge = 1 * 24 * time.Hour
-
-// NotVerifyUrl 绕过验证的地址
-var NotVerifyUrl = Default().NotVerifyUrl
-
-// Cors 跨域
-var Cors = Default().Cors
-
-// Upload 上传配置
-var Upload = Default().Upload

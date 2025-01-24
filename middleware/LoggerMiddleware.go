@@ -13,8 +13,8 @@ import (
 // LoggerToFile 日志记录到文件
 func LoggerToFile() gin.HandlerFunc {
 
-	logFilePath := config.LogFilePath
-	logFileName := config.LogFileName
+	logFilePath := config.Default().LogConfig.Path
+	logFileName := config.Default().LogConfig.Name
 	//日志文件
 	fileName := path.Join(logFilePath, logFileName)
 	//写入文件

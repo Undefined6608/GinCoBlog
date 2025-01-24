@@ -14,7 +14,7 @@ import (
 func JwtVerifyMiddle() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//过滤是否验证token
-		if utils.IsContainArr(config.NotVerifyUrl, c.Request.URL.Path) {
+		if utils.IsContainArr(config.Default().NotVerifyUrl, c.Request.URL.Path) {
 			return
 		}
 		token := c.GetHeader("Authorization")
@@ -44,7 +44,7 @@ func parseToken(c *gin.Context, tokenString string) *request.TokenParams {
 	}
 	//解析token
 	token, err := jwt.ParseWithClaims(tokenString, &request.TokenParams{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(config.TokenPrivateKey), nil
+		return []byte(config.Default().Token.PrivateKey), nil
 	})
 	// 解析成功
 	if err != nil {
